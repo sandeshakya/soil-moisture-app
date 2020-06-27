@@ -1,8 +1,8 @@
 import tinycolor from "tinycolor2";
-var SENSOR_MIN_VALUE = 600;
-var SENSOR_MAX_VALUE = 2500;
-var BATTERY_MAX_VOLTAGE = 4.2;
-var BATTERY_MAX_VALUE = 4095;
+export const SENSOR_MIN_VALUE = 600;
+export const SENSOR_MAX_VALUE = 2500;
+export const BATTERY_MAX_VOLTAGE = 4.2;
+export const BATTERY_MAX_VALUE = 4095;
 
 /**
  * Returns current unix timestamp in sensor timestamp format

@@ -8,12 +8,19 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
-import { GetTimestamp, asyncForEach, RandomColor } from "./HelperFunctions";
+import {
+  GetTimestamp,
+  asyncForEach,
+  RandomColor,
+  GetSensorPercent,
+  ConvertToJSDate,
+  SENSOR_MAX_VALUE,
+} from "./HelperFunctions";
 import SensorAPI from "../api/SensorAPI";
 
 const SensorHistory = () => {
   const [data, setData] = useState([]);
-  const [limit, setLimit] = useState(50);
+  const [duration, setDuration] = useState(3600);
   const [selectedSensors, setSelectedSensors] = useState({ 1: true, 2: false });
   const [currentTime, setCurrentTime] = useState(GetTimestamp());
 
@@ -25,10 +32,16 @@ const SensorHistory = () => {
     asyncForEach(Object.keys(selectedSensors), async (id) => {
       if (selectedSensors[id]) {
         var resp = await SensorAPI.get(`/sensor/${id}`, {
-          params: { timestamp: currentTime, limit: limit },
+          params: {
+            timestamp_to: currentTime,
+            timestamp_from: currentTime - duration,
+          },
         });
         dataPoints[counter] = resp.data.Items.map((item) => {
-          return { [id]: item.payload.M.data.N, timestamp: item.timestamp.N };
+          return {
+            [id]: item.payload.M.data.N,
+            timestamp: item.timestamp.N,
+          };
         });
         // console.log(dataPoints[counter]);
         counter += 1;
@@ -63,15 +76,17 @@ const SensorHistory = () => {
       <h2>Sensor History</h2>
       <div className="ui grid">
         <div className="five wide column">
-          <h4>Data Points</h4>
+          <h4>Duration</h4>
           <select
+            name="duration"
             className="ui selection"
-            value={limit}
-            onChange={(e) => setLimit(e.target.value)}
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
           >
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="75">75</option>
+            <option value="3600">Last Hour</option>
+            <option value="21600">Last 6 Hours</option>
+            <option value="43200">Last 12 Hours</option>
+            <option value="86400">Last Day</option>
           </select>
         </div>
         <div className="six wide column">
@@ -108,10 +123,23 @@ const SensorHistory = () => {
             reversed={true}
             name="Time"
             tickFormatter={(t) => new Date(t * 1000).toLocaleTimeString()}
+            scale="linear"
           />
-          <YAxis domain={[0, 4095]} />
+          <YAxis
+            unit="%"
+            domain={[0, SENSOR_MAX_VALUE]}
+            tickFormatter={(item) => {
+              return GetSensorPercent(item);
+            }}
+          />
           <CartesianGrid strokeDasharray="3 3" />
-          <Tooltip />
+          <Tooltip
+            labelFormatter={(t) => ConvertToJSDate(t)}
+            formatter={(value, name) => [
+              `${GetSensorPercent(value)} %`,
+              `Sensor ${name}`,
+            ]}
+          />
           <Legend />
           {Object.keys(selectedSensors).map((id) => {
             return (

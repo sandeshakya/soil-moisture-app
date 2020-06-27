@@ -1,6 +1,8 @@
 import React from "react";
 import SensorCurrentList from "./SensorCurrentList";
 import SensorHistory from "./SensorHistory";
+import BatteryStatusCurrent from "./BatteryStatusCurrent";
+import BatteryStatusHistory from "./BatteryStatusHistory";
 
 const App = () => {
   return (
@@ -9,6 +11,10 @@ const App = () => {
       <SensorCurrentList />
       <div className="ui divider"></div>
       <SensorHistory />
+      <div className="ui divider"></div>
+      <BatteryStatusCurrent />
+      <div className="ui divider"></div>
+      <BatteryStatusHistory />
     </div>
   );
 };

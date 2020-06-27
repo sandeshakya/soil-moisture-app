@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import SensorAPI from "../api/SensorAPI";
-import { GetTimestamp, RandomColor } from "./HelperFunctions";
+import {
+  GetTimestamp,
+  RandomColor,
+  GetSensorPercent,
+  GetBatteryPercent,
+  ConvertToJSDate,
+  BATTERY_MAX_VALUE,
+  GetBatteryVoltage,
+} from "./HelperFunctions";
 import {
   LineChart,
   XAxis,
@@ -13,12 +21,18 @@ import {
 
 const BatteryStatusHistory = () => {
   const [data, setData] = useState([]);
-  const [limit, setLimit] = useState(50);
+  const [duration, setDuration] = useState(3600);
   const [currentTime, setCurrentTime] = useState(GetTimestamp());
+
+  const LINE_COLOR_BATTERY_PERCENT = "#0000FF";
+  const LINE_COLOR_BATTERY_VOLTAGE = "#FF0000";
 
   const fetchData = async () => {
     var resp = await SensorAPI.get("/battery", {
-      params: { timestamp: currentTime, limit: limit },
+      params: {
+        timestamp_to: currentTime,
+        timestamp_from: currentTime - duration,
+      },
     });
     setData(
       resp.data.Items.map((item) => {
@@ -36,15 +50,17 @@ const BatteryStatusHistory = () => {
       <h2>Battery Status History</h2>
       <div className="ui grid">
         <div className="two wide column">
-          <h4>Data Points</h4>
+          <h4>Duration</h4>
           <select
+            name="duration"
             className="ui selection"
-            value={limit}
-            onChange={(e) => setLimit(e.target.value)}
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
           >
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="75">75</option>
+            <option value="3600">Last Hour</option>
+            <option value="21600">Last 6 Hours</option>
+            <option value="43200">Last 12 Hours</option>
+            <option value="86400">Last Day</option>
           </select>
         </div>
         <div className="five wide column">
@@ -62,16 +78,48 @@ const BatteryStatusHistory = () => {
             dataKey="timestamp"
             reversed={true}
             tickFormatter={(t) => new Date(t * 1000).toLocaleTimeString()}
+            scale="linear"
           />
-          <YAxis domain={[0, 4095]} />
+          <YAxis
+            yAxisId="left"
+            unit="%"
+            domain={[0, BATTERY_MAX_VALUE]}
+            tickFormatter={(item) => {
+              return GetBatteryPercent(item);
+            }}
+          />
+          <YAxis
+            yAxisId="right"
+            orientation="right"
+            unit="V"
+            domain={[0, BATTERY_MAX_VALUE]}
+            tickFormatter={(item) => {
+              return GetBatteryVoltage(item);
+            }}
+          />
           <CartesianGrid strokeDasharray="3 3" />
-          <Tooltip />
-          <Legend />
+          <Tooltip
+            labelFormatter={(t) => ConvertToJSDate(t)}
+            formatter={(value, name, entry) => {
+              return entry.color === LINE_COLOR_BATTERY_PERCENT
+                ? [`${GetBatteryPercent(value)} %`, "Percent"]
+                : [`${GetBatteryVoltage(value)} V`, "Voltage"];
+            }}
+          />
           <Line
+            yAxisId="left"
             key="data"
             type="monotone"
             dataKey="data"
-            stroke="#0000FF"
+            stroke={LINE_COLOR_BATTERY_PERCENT}
+            dot={false}
+          />
+          <Line
+            yAxisId="right"
+            key="data"
+            type="monotone"
+            dataKey="data"
+            stroke={LINE_COLOR_BATTERY_VOLTAGE}
             dot={false}
           />
         </LineChart>
