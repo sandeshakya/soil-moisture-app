@@ -9,6 +9,7 @@ import Header from "./Header";
 import { Router, Switch, Route } from "react-router-dom";
 import history from "../history";
 import Sidebar from "./Sidebar";
+import DeviceConfiguration from "./DeviceConfiguration";
 
 const App = () => {
   return (
@@ -22,6 +23,11 @@ const App = () => {
             path="/battery-information"
             exact
             component={BatteryInformation}
+          />
+          <Route
+            path="/device-configuration"
+            exact
+            component={DeviceConfiguration}
           />
         </Switch>
       </Router>

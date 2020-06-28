@@ -10,8 +10,8 @@ const Sidebar = () => {
       <Link to="/battery-information" className="item">
         Battery Information
       </Link>
-      <Link to="#" className="item">
-        Configure Device
+      <Link to="/device-configuration" className="item">
+        Device Configuration
       </Link>
     </div>
   );
