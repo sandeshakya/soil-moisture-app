@@ -29,6 +29,11 @@ const DeviceConfiguration = () => {
   });
   const [isEditable, setIsEditable] = useState(false);
   const [hasErrors, setHasErrors] = useState(false);
+  const [SubmitResp, setSubmitResp] = useState({
+    visible: false,
+    status: null,
+    message: null,
+  });
 
   const HandleInputValidation = () => {
     const newState = { ...InputValidation };
@@ -91,6 +96,16 @@ const DeviceConfiguration = () => {
         },
       },
     });
+    console.log(resp);
+    setSubmitResp(
+      resp.data.message === undefined
+        ? {
+            visible: true,
+            status: "success",
+            message: "Post submitted successfully!",
+          }
+        : { visible: true, status: "error", message: resp.data.message }
+    );
   };
 
   useEffect(() => {
@@ -192,6 +207,15 @@ const DeviceConfiguration = () => {
           </div>
         </div>
       </form>
+      {SubmitResp.visible && (
+        <div className={`ui message ${SubmitResp.status}`}>
+          <i
+            className="close icon"
+            onClick={() => setSubmitResp({ ...SubmitResp, visible: false })}
+          ></i>
+          <div className="header">{SubmitResp.message}</div>
+        </div>
+      )}
       <div className={`ui message ${hasErrors ? "error" : "success"}`}>
         <div className="header">Following parameters must be met</div>
         <ul>
