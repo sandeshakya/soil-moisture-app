@@ -5,9 +5,10 @@ import {
   RandomColor,
   GetSensorPercent,
   GetBatteryPercent,
-  ConvertToJSDate,
+  ConvertToDate,
   BATTERY_MAX_VALUE,
   GetBatteryVoltage,
+  HourToMilli,
 } from "./HelperFunctions";
 import {
   LineChart,
@@ -17,11 +18,12 @@ import {
   Legend,
   Line,
   CartesianGrid,
+  ResponsiveContainer,
 } from "recharts";
 
 const BatteryStatusHistory = () => {
   const [data, setData] = useState([]);
-  const [duration, setDuration] = useState(3600);
+  const [duration, setDuration] = useState(1);
   const [currentTime, setCurrentTime] = useState(GetTimestamp());
 
   const LINE_COLOR_BATTERY_PERCENT = "#0000FF";
@@ -31,7 +33,7 @@ const BatteryStatusHistory = () => {
     var resp = await SensorAPI.get("/battery", {
       params: {
         timestamp_to: currentTime,
-        timestamp_from: currentTime - duration,
+        timestamp_from: currentTime - HourToMilli(duration),
       },
     });
     setData(
@@ -49,7 +51,7 @@ const BatteryStatusHistory = () => {
     <div>
       <h2>Battery Status History</h2>
       <div className="ui grid">
-        <div className="two wide column">
+        <div className="four wide column">
           <h4>Duration</h4>
           <select
             name="duration"
@@ -57,10 +59,10 @@ const BatteryStatusHistory = () => {
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
           >
-            <option value="3600">Last Hour</option>
-            <option value="21600">Last 6 Hours</option>
-            <option value="43200">Last 12 Hours</option>
-            <option value="86400">Last Day</option>
+            <option value="1">Last Hour</option>
+            <option value="6">Last 6 Hours</option>
+            <option value="12">Last 12 Hours</option>
+            <option value="24">Last Day</option>
           </select>
         </div>
         <div className="five wide column">
@@ -73,56 +75,58 @@ const BatteryStatusHistory = () => {
         </div>
       </div>
       <div>
-        <LineChart width={600} height={300} data={data}>
-          <XAxis
-            dataKey="timestamp"
-            reversed={true}
-            tickFormatter={(t) => new Date(t * 1000).toLocaleTimeString()}
-            scale="linear"
-          />
-          <YAxis
-            yAxisId="left"
-            unit="%"
-            domain={[0, BATTERY_MAX_VALUE]}
-            tickFormatter={(item) => {
-              return GetBatteryPercent(item);
-            }}
-          />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            unit="V"
-            domain={[0, BATTERY_MAX_VALUE]}
-            tickFormatter={(item) => {
-              return GetBatteryVoltage(item);
-            }}
-          />
-          <CartesianGrid strokeDasharray="3 3" />
-          <Tooltip
-            labelFormatter={(t) => ConvertToJSDate(t)}
-            formatter={(value, name, entry) => {
-              return entry.color === LINE_COLOR_BATTERY_PERCENT
-                ? [`${GetBatteryPercent(value)} %`, "Percent"]
-                : [`${GetBatteryVoltage(value)} V`, "Voltage"];
-            }}
-          />
-          <Line
-            yAxisId="left"
-            key="data"
-            type="monotone"
-            dataKey="data"
-            stroke={LINE_COLOR_BATTERY_PERCENT}
-            dot={false}
-          />
-          <Line
-            yAxisId="right"
-            key="data"
-            type="monotone"
-            dataKey="data"
-            stroke={LINE_COLOR_BATTERY_VOLTAGE}
-            dot={false}
-          />
-        </LineChart>
+        <ResponsiveContainer width="99%" height={300}>
+          <LineChart data={data}>
+            <XAxis
+              dataKey="timestamp"
+              reversed={true}
+              tickFormatter={(t) => new Date(Number(t)).toLocaleTimeString()}
+              scale="linear"
+            />
+            <YAxis
+              yAxisId="left"
+              unit="%"
+              domain={[0, BATTERY_MAX_VALUE]}
+              tickFormatter={(item) => {
+                return GetBatteryPercent(item);
+              }}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              unit="V"
+              domain={[0, BATTERY_MAX_VALUE]}
+              tickFormatter={(item) => {
+                return GetBatteryVoltage(item);
+              }}
+            />
+            <CartesianGrid strokeDasharray="3 3" />
+            <Tooltip
+              labelFormatter={(t) => ConvertToDate(t)}
+              formatter={(value, name, entry) => {
+                return entry.color === LINE_COLOR_BATTERY_PERCENT
+                  ? [`${GetBatteryPercent(value)} %`, "Percent"]
+                  : [`${GetBatteryVoltage(value)} V`, "Voltage"];
+              }}
+            />
+            <Line
+              yAxisId="left"
+              key="data"
+              type="monotone"
+              dataKey="data"
+              stroke={LINE_COLOR_BATTERY_PERCENT}
+              dot={false}
+            />
+            <Line
+              yAxisId="right"
+              key="data"
+              type="monotone"
+              dataKey="data"
+              stroke={LINE_COLOR_BATTERY_VOLTAGE}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

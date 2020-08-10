@@ -17,19 +17,21 @@ const App = () => {
       <Router history={history}>
         <Header />
         <Sidebar />
-        <Switch>
-          <Route path="/" exact component={SensorReadings} />
-          <Route
-            path="/battery-information"
-            exact
-            component={BatteryInformation}
-          />
-          <Route
-            path="/device-configuration"
-            exact
-            component={DeviceConfiguration}
-          />
-        </Switch>
+        <div className="ui segment">
+          <Switch>
+            <Route path="/" exact component={SensorReadings} />
+            <Route
+              path="/battery-information"
+              exact
+              component={BatteryInformation}
+            />
+            <Route
+              path="/device-configuration"
+              exact
+              component={DeviceConfiguration}
+            />
+          </Switch>
+        </div>
       </Router>
     </div>
   );

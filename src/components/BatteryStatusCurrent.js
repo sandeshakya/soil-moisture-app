@@ -4,7 +4,7 @@ import SensorAPI from "../api/SensorAPI";
 import {
   GetTimestamp,
   GetBatteryPercent,
-  ConvertToJSDate,
+  ConvertToDate,
   GetBatteryVoltage,
 } from "./HelperFunctions";
 
@@ -29,7 +29,7 @@ const BatteryStatusCurrent = () => {
       <h2>Battery Status</h2>
       <h3>{GetBatteryPercent(BatteryData)}%</h3>
       <h3>{GetBatteryVoltage(BatteryData)} V</h3>
-      <h3>{`Last Updated on ${ConvertToJSDate(UpdatedAt)}`}</h3>
+      <h3>{`Last Updated on ${ConvertToDate(UpdatedAt)}`}</h3>
       <button
         className="ui button primary"
         onClick={() => setCurrentTime(GetTimestamp())}

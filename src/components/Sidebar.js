@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <div className="ui sidebar left vertical visible menu">
+    <div className="ui secondary pointing menu">
       <Link to="/" className="item">
         Sensor Readings
       </Link>

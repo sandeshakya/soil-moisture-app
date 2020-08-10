@@ -9,7 +9,7 @@ export const BATTERY_MAX_VALUE = 4095;
  */
 export const GetTimestamp = () => {
   let d = new Date();
-  let timestamp = parseInt(d.getTime() / 1000);
+  let timestamp = parseInt(d.getTime());
   return timestamp;
 };
 
@@ -52,6 +52,14 @@ export const GetBatteryVoltage = (val) => {
  * Convert sensor timestamp to Javascript Date
  * @param {Number} ts Sensor timestamp
  */
-export const ConvertToJSDate = (ts) => {
-  return new Date(ts * 1000).toLocaleString();
+export const ConvertToDate = (ts) => {
+  return new Date(Number(ts)).toLocaleString();
 };
+
+/**
+ * Convert Hour to Milliseconds
+ * @param {Number} hour Time in Hours
+ */
+export const  HourToMilli = (hour) => {
+  return (hour * 60 * 60 * 1000);
+}

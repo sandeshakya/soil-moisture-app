@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SensorAPI from "../api/SensorAPI";
 import "./SensorStyle.css";
-import { GetSensorPercent, ConvertToJSDate } from "./HelperFunctions";
+import { GetSensorPercent, ConvertToDate } from "./HelperFunctions";
 
 const SensorCurrentItem = ({ id, currentTime, className }) => {
   const [SensorData, setSensorData] = useState(0);
@@ -22,7 +22,7 @@ const SensorCurrentItem = ({ id, currentTime, className }) => {
     <div className={`sensor-basic-item ${className} `}>
       <h3>{`Sensor ${id}`}</h3>
       <h3>{GetSensorPercent(SensorData)}%</h3>
-      <h3>{`Last Updated on ${ConvertToJSDate(UpdatedAt)}`}</h3>
+      <h3>{`Last Updated on ${ConvertToDate(UpdatedAt)}`}</h3>
     </div>
   );
 };

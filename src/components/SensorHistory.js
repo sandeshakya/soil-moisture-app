@@ -7,20 +7,22 @@ import {
   Tooltip,
   Legend,
   CartesianGrid,
+  ResponsiveContainer,
 } from "recharts";
 import {
   GetTimestamp,
   asyncForEach,
   RandomColor,
   GetSensorPercent,
-  ConvertToJSDate,
+  ConvertToDate,
   SENSOR_MAX_VALUE,
+  HourToMilli,
 } from "./HelperFunctions";
 import SensorAPI from "../api/SensorAPI";
 
 const SensorHistory = () => {
   const [data, setData] = useState([]);
-  const [duration, setDuration] = useState(3600);
+  const [duration, setDuration] = useState(1);
   const [selectedSensors, setSelectedSensors] = useState({ 1: true, 2: false });
   const [currentTime, setCurrentTime] = useState(GetTimestamp());
 
@@ -34,7 +36,7 @@ const SensorHistory = () => {
         var resp = await SensorAPI.get(`/sensor/${id}`, {
           params: {
             timestamp_to: currentTime,
-            timestamp_from: currentTime - duration,
+            timestamp_from: currentTime - HourToMilli(duration),
           },
         });
         dataPoints[counter] = resp.data.Items.map((item) => {
@@ -63,8 +65,6 @@ const SensorHistory = () => {
       }
       setData(dataPoints[0]);
     });
-
-    // setData(dataPoints[0]);
   };
 
   useEffect(() => {
@@ -83,10 +83,10 @@ const SensorHistory = () => {
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
           >
-            <option value="3600">Last Hour</option>
-            <option value="21600">Last 6 Hours</option>
-            <option value="43200">Last 12 Hours</option>
-            <option value="86400">Last Day</option>
+            <option value="1">Last Hour</option>
+            <option value="6">Last 6 Hours</option>
+            <option value="12">Last 12 Hours</option>
+            <option value="24">Last Day</option>
           </select>
         </div>
         <div className="six wide column">
@@ -117,42 +117,44 @@ const SensorHistory = () => {
         </div>
       </div>
       <div>
-        <LineChart width={600} height={300} data={data}>
-          <XAxis
-            dataKey="timestamp"
-            reversed={true}
-            name="Time"
-            tickFormatter={(t) => new Date(t * 1000).toLocaleTimeString()}
-            scale="linear"
-          />
-          <YAxis
-            unit="%"
-            domain={[0, SENSOR_MAX_VALUE]}
-            tickFormatter={(item) => {
-              return GetSensorPercent(item);
-            }}
-          />
-          <CartesianGrid strokeDasharray="3 3" />
-          <Tooltip
-            labelFormatter={(t) => ConvertToJSDate(t)}
-            formatter={(value, name) => [
-              `${GetSensorPercent(value)} %`,
-              `Sensor ${name}`,
-            ]}
-          />
-          <Legend />
-          {Object.keys(selectedSensors).map((id) => {
-            return (
-              <Line
-                key={id}
-                type="monotone"
-                dataKey={id}
-                stroke={RandomColor(id)}
-                dot={false}
-              />
-            );
-          })}
-        </LineChart>
+        <ResponsiveContainer width="99%" height={300}>
+          <LineChart data={data}>
+            <XAxis
+              dataKey="timestamp"
+              reversed={true}
+              name="Time"
+              tickFormatter={(t) => new Date(Number(t)).toLocaleTimeString()}
+              scale="linear"
+            />
+            <YAxis
+              unit="%"
+              domain={[0, SENSOR_MAX_VALUE]}
+              tickFormatter={(item) => {
+                return GetSensorPercent(item);
+              }}
+            />
+            <CartesianGrid strokeDasharray="3 3" />
+            <Tooltip
+              labelFormatter={(t) => ConvertToDate(t)}
+              formatter={(value, name) => [
+                `${GetSensorPercent(value)} %`,
+                `Sensor ${name}`,
+              ]}
+            />
+            <Legend />
+            {Object.keys(selectedSensors).map((id) => {
+              return (
+                <Line
+                  key={id}
+                  type="monotone"
+                  dataKey={id}
+                  stroke={RandomColor(id)}
+                  dot={false}
+                />
+              );
+            })}
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
