@@ -23,7 +23,8 @@ const SensorCurrentList = () => {
         </div>
         <div className="row">
           <button
-            className="ui button primary"
+            className="ui button primary "
+            style={{ marginLeft: "16px" }}
             onClick={() => setCurrentTime(GetTimestamp())}
           >
             Refresh
