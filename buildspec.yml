@@ -1,7 +1,7 @@
 version: 0.2
-frontend:
+
   phases:
-    pre-build:
+    pre_build:
       commands:
         - npm ci
     build:
